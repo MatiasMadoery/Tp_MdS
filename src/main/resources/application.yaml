@@ -1,0 +1,11 @@
+ktor:
+    application:
+        modules:
+            - utn.methodology.ApplicationKt.module
+    deployment:
+        port: 8080
+
+db:
+    mongo:
+        user: 'local'
+        password: 'secret'
