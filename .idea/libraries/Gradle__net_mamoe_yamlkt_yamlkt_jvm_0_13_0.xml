@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: net.mamoe.yamlkt:yamlkt-jvm:0.13.0" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="net.mamoe.yamlkt" artifactId="yamlkt-jvm" version="0.13.0" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/net.mamoe.yamlkt/yamlkt-jvm/0.13.0/9c93e3ef80314d6486f6f9be95db8df6bc728d67/yamlkt-jvm-0.13.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
