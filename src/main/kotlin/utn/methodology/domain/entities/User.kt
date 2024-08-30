@@ -1,5 +1,4 @@
 package utn.methodology.domain.entities
-import ch.qos.logback.core.status.Status
 
 data class User (
     private val id : String,
