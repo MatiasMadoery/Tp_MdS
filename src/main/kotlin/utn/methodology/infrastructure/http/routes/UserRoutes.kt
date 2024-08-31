@@ -1,32 +1,30 @@
-package kotlin.utn.methodology.infrastructure.http.routes
+package utn.methodology.infrastructure.http.routes
 
-//import example.com.app.infrastructure.persistance.config.connectToMongoDB
-//import example.com.eventBus
-//import example.com.app.infrastructure.utils.Response
-//ver si hacen falta
+import utn.methodology.application.commands.CreateUserCommand
+import utn.methodology.application.commandhandlers.CreateUserHandler
+import utn.methodology.infrastructure.http.actions.CreateUserAction
+import utn.methodology.infrastructure.persistence.connectToMongoDB
+import utn.methodology.infrastructure.persistence.repositories.UserRepository
+import com.mongodb.client.*
+import io.ktor.server.config.*
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-//va kotlin?
-import kotlin.utn.methodology.infrastructure.persistence.repositories.UserRepository
-import kotlin.utn.methodology.infrastructure.http.actions.CreateUserAction
-import kotlin.utn.methodology.application.commandhandlers.CreateUserHandler
-import kotlin.utn.methodology.application.commands.CreateUserCommand
 
-fun Application.UserRoutes() {
-    val mongoDatabase = connectToMongoDB() //ver si hay que importar
+fun Application.userRoutes() {
+    val mongoDatabase = connectToMongoDB()
     val userRepository = UserRepository(mongoDatabase)
-    val createuseraction =
-        CreateUserAction(CreateUserHandler(userRepository, eventBus))
+    val createUserAction = CreateUserAction(CreateUserHandler(userRepository))
 //    val findUserByIdAction = FindUserByIdAction(FindUserByIdHandler(userMongoUserRepository))
 
     routing {
-        post("/user") {
+        post("/users") {
             val body = call.receive<CreateUserCommand>()
             try
             {
-                createuseraction.execute(body)
+                createUserAction.execute(body)
                 call.respond(HttpStatusCode.Created, mapOf("message" to "User registered"))
             }
             catch(e:Exception)
