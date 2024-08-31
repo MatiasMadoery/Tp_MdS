@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: io.ktor:ktor-server-netty-jvm:2.3.12" type="java-imported" external-system-id="GRADLE">
+    <properties groupId="io.ktor" artifactId="ktor-server-netty-jvm" version="2.3.12" />
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.ktor/ktor-server-netty-jvm/2.3.12/286e5ffab3ad51b7e1f2f9f7d47998b9d2fef54b/ktor-server-netty-jvm-2.3.12.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
