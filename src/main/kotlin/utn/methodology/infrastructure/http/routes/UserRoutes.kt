@@ -1,41 +1,36 @@
 package kotlin.utn.methodology.infrastructure.http.routes
 
-import example.com.app.application.commandHandlers.ConfirmShippingHandler
-import example.com.app.application.commands.ConfirmShippingCommand
-import example.com.app.infrastructure.http.actions.CreateUserAction
-import example.com.app.infrastructure.persistance.config.connectToMongoDB
-import example.com.app.infrastructure.persistance.repositories.ShippingMongoRepository
-import example.com.eventBus
-import example.com.app.infrastructure.utils.Response
+//import example.com.app.infrastructure.persistance.config.connectToMongoDB
+//import example.com.eventBus
+//import example.com.app.infrastructure.utils.Response
+//ver si hacen falta
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+//va kotlin?
+import kotlin.utn.methodology.infrastructure.persistence.repositories.UserRepository
+import kotlin.utn.methodology.infrastructure.http.actions.CreateUserAction
+import kotlin.utn.methodology.application.commandhandlers.CreateUserHandler
+import kotlin.utn.methodology.application.commands.CreateUserCommand
 
-fun Application.shippingRoutes() {
-    val mongoDatabase = connectToMongoDB() // Conexión a la base de datos
-
-    val shippingMongoRepository = ShippingMongoRepository(mongoDatabase) // Inyección del repositorio
-
+fun Application.UserRoutes() {
+    val mongoDatabase = connectToMongoDB() //ver si hay que importar
+    val userRepository = UserRepository(mongoDatabase)
     val createuseraction =
-        CreateUserAction(ConfirmShippingHandler(shippingMongoRepository, eventBus)) // Inyección del manejador de la acción
-
+        CreateUserAction(CreateUserHandler(userRepository, eventBus))
 //    val findUserByIdAction = FindUserByIdAction(FindUserByIdHandler(userMongoUserRepository))
 
     routing {
-        // POST /shippings crea un nuevo envío
-        post("/register") {
-            // Recibe lo que ingreso el usuario
-            val body = call.receive<ConfirmShippingCommand>()
+        post("/user") {
+            val body = call.receive<CreateUserCommand>()
             try
             {
-                //Mensaje de éxito si esta bien
                 createuseraction.execute(body)
                 call.respond(HttpStatusCode.Created, mapOf("message" to "User registered"))
             }
             catch(e:Exception)
             {
-                // Manejar errores
                 call.respond(HttpStatusCode.BadRequest, mapOf("message" to e.message))
             }
         }

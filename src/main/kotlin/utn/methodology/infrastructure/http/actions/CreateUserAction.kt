@@ -1,10 +1,11 @@
 package kotlin.utn.methodology.infrastructure.http.actions
 
+import kotlin.utn.methodology.application.commandhandlers.CreateUserHandler
+import kotlin.utn.methodology.application.commands.CreateUserCommand
+
 class CreateUserAction(private val handler: CreateUserHandler) {
-    fun execute(body: CreateuserCommand) {
-        // Valida los datos del comando
+    fun execute(body: CreateUserCommand) {
         body.validate().let {
-            // Si los datos son válidos, pasa el comando al handler
             handler.handle(body)
         }
     }
