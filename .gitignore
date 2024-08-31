@@ -1,10 +1,5 @@
-<<<<<<< HEAD
 build
 .gradle
 .idea
-=======
-.idea
 .env
 .kotlin
-.gradle
->>>>>>> 763a98625f19f9bc278da4d80a9979bb70009d84

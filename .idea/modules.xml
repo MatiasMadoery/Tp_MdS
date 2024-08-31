@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/utn.methodology.posts.iml" filepath="$PROJECT_DIR$/.idea/modules/utn.methodology.posts.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/utn.methodology.posts.main.iml" filepath="$PROJECT_DIR$/.idea/modules/utn.methodology.posts.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/utn.methodology.posts.test.iml" filepath="$PROJECT_DIR$/.idea/modules/utn.methodology.posts.test.iml" />
+    </modules>
+  </component>
+</project>
