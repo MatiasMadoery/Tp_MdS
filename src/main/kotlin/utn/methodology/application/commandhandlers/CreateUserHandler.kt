@@ -1,10 +1,9 @@
 package utn.methodology.application.commandhandlers
 
-import com.mongodb.client.MongoDatabase
 import utn.methodology.application.commands.CreateUserCommand
-import java.util.UUID
 import utn.methodology.domain.entities.User
-import utn.methodology.infrastructure.persistence.repositories.UserRepository // aun no esta bien creado va Mongo
+import utn.methodology.infrastructure.persistence.repositories.UserRepository // aun no esta bien echo va Mongo
+import java.util.UUID
 
 class CreateUserHandler (
             private val userRepository: UserRepository,
@@ -12,16 +11,15 @@ class CreateUserHandler (
 {
     fun handle(command: CreateUserCommand)
     {
-        val user = User.handle(
+        val user = User(
             UUID.randomUUID().toString(),
-            command.Name,
-            command.Username,
-            command.Email,
-            command.Password,
+            command.name,
+            command.userName,
+            command.email,
+            command.password,
         )
 
         userRepository.Save(user)
     }
-
 }
 
