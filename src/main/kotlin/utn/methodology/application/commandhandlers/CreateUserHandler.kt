@@ -14,7 +14,7 @@ class CreateUserHandler (
         val user = User(
             UUID.randomUUID().toString(),
             command.name,
-            command.userName,
+            command.username,
             command.email,
             command.password,
         )
