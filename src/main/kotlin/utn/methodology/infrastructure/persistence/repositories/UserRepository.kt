@@ -1,52 +1,55 @@
 package utn.methodology.infrastructure.persistence.repositories
 import com.mongodb.client.MongoDatabase
-import com.mongodb.client.model.Filters
+import com.mongodb.client.MongoCollection
 import org.bson.Document
-import org.bson.types.ObjectId
-import com.mongodb.client.model.Updates
+import utn.methodology.domain.entities.User
 
-class UserRepository(private val database:MongoDatabase) : UserRepository {
-    private val collection = database.getCollection<User>("Users")
+class UserRepository(private val database:MongoDatabase) {
+    private var collection: MongoCollection<Document> = database.getCollection("users") as MongoCollection<Document>
 
-    fun Save (User: user): User {
-        collection.insertOne(user)
-        return user
+    fun Save (user: User) {
+        val newUser = Document(user.toPrimitives())
+        collection.insertOne(newUser)
     }
 
-    fun SearchById(id: Long): User? {
-        val idUser = ObjectId(id.toString())
-        return collection.find(Document("id",idUser)).firstOrNull()
+    fun FindById(id: String): User? {
+        val filter = Document("id", id)
+
+        val primitives = collection.find(filter).firstOrNull() ?: return null
+
+        return User.fromPrimitives(primitives as Map<String, String>)
     }
 
-    fun Update(User: user): User{
-        val filter = Filters.eq("id",id)
+    fun Update(user: User): Boolean{
+        val filter = Document("id", user.getId())
+        val update = Document("\$set", user.toPrimitives())
+        val result = collection.updateOne(filter, update)
 
-        val update = Updates.combine(
-            Updates.set("name",user.name),
-            Updates.set("username",user.username),
-            Updates.set("email",user.email),
-            Updates.set("password",user.password)
-        )
-
-        collection.updateOne(filter,update)
-
-        return user
+        return result.matchedCount > 0
     }
 
-    fun ExistsByUsername(username: String): Boolean{
-        val filter = Filters.eq("username",username)
+    fun ExistsByUsername(username: String): User? {
+        val filter = Document("username", username)
 
-        val result = collection.find(filter).firstOrNull()
+        val document = collection.find(filter).firstOrNull() ?: return null
 
-        return result != null
+        val primitives = document.mapNotNull {
+            if (it.value is String) it.key to it.value as String else return null
+        }.toMap()
+
+        return User.fromPrimitives(primitives)
     }
 
 
-    fun ExistsByMail(email: String): Boolean{
-        val filter = Filters.eq("email",email)
+    fun ExistsByMail(email: String): User?{
+        val filter = Document("email",email)
 
-        val result = collection.find(filter).firstOrNull()
+        val document = collection.find(filter).firstOrNull() ?: return null
 
-        return result != null
+        val primitives = document.mapNotNull {
+            if (it.value is String) it.key to it.value as String else return null
+        }.toMap()
+
+        return User.fromPrimitives(primitives)
     }
 }
