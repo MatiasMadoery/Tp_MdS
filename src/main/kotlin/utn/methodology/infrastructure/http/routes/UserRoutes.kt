@@ -5,19 +5,20 @@ import utn.methodology.application.commandhandlers.CreateUserHandler
 import utn.methodology.infrastructure.http.actions.CreateUserAction
 import utn.methodology.infrastructure.persistence.connectToMongoDB
 import utn.methodology.infrastructure.persistence.repositories.UserRepository
-import com.mongodb.client.*
-import io.ktor.server.config.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import utn.methodology.application.queries.FindUserByUsernameQuery
+import utn.methodology.application.queryhandlers.FindUserByUsernameHandler
+import utn.methodology.infrastructure.http.actions.FindUserByUsernameAction
 
 fun Application.userRoutes() {
     val mongoDatabase = connectToMongoDB()
     val userRepository = UserRepository(mongoDatabase)
     val createUserAction = CreateUserAction(CreateUserHandler(userRepository))
-//    val findUserByIdAction = FindUserByIdAction(FindUserByIdHandler(userMongoUserRepository))
+    val findUserByUsernameAction = FindUserByUsernameAction(FindUserByUsernameHandler(userRepository))
 
     routing {
         post("/users") {
@@ -32,5 +33,16 @@ fun Application.userRoutes() {
                 call.respond(HttpStatusCode.BadRequest, mapOf("message" to e.message))
             }
         }
+
+        get("/users/{username}") {
+
+            val query = FindUserByUsernameQuery(call.parameters["username"].toString())
+
+            val result = findUserByUsernameAction.execute(query)
+
+            call.respond(HttpStatusCode.OK, result)
+
+            }
+
     }
 }

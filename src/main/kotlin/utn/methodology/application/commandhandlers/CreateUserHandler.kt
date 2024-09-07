@@ -19,7 +19,7 @@ class CreateUserHandler (
             command.password,
         )
 
-        userRepository.Save(user)
+        userRepository.save(user)
     }
 }
 

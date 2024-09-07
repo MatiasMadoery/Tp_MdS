@@ -6,11 +6,8 @@ import utn.methodology.infrastructure.persistence.repositories.UserRepository
 
 class FindUserByUsernameHandler(private val userRepository: UserRepository) {
     fun handle(query: FindUserByUsernameQuery) : Map <String,String> {
-        val user = userRepository.ExistsByUsername(query.Username)
-        if (user == null)
-            {
-                throw NotFoundException("user with username: ${query.Username} not found")
-            }
+        val user = userRepository.existsByUsername(query.Username)
+            ?: throw NotFoundException("user with username: ${query.Username} not found")
         return user.toPrimitives()
     }
 

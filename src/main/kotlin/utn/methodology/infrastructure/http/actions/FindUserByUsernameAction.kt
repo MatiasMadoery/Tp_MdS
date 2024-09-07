@@ -5,9 +5,9 @@ import utn.methodology.application.queryhandlers.FindUserByUsernameHandler
 
 class FindUserByUsernameAction (private val handler: FindUserByUsernameHandler)
 {
-    fun execute(query: FindUserByUsernameQuery){
+    fun execute(query: FindUserByUsernameQuery): Map<String, String>{
         query.validate().let{
-             handler.handle(it)
+            return handler.handle(it)
         }
     }
 
