@@ -12,6 +12,8 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import org.slf4j.LoggerFactory
 import utn.methodology.infrastructure.persistence.configureDatabases
+import utn.methodology.infrastructure.http.routes.userRoutes
+
 
 fun main(args: Array<String>) {
     io.ktor.server.netty.EngineMain.main(args)
@@ -41,7 +43,7 @@ fun Application.module() {
     }
 
     configureDatabases()
-    //userRouter()
+    userRoutes()
     errorHandler()
 }
 
