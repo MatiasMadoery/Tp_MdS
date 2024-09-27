@@ -31,11 +31,32 @@ class PostRepository (private val database: MongoDatabase) : PostRepositoryInter
             .toList()
     }
 
+    fun deletePostById(postId: String) : Boolean{
+        val filter = Document("postId", postId)
+        val result = collection.deleteOne(filter)
+
+        return result.deletedCount > 0
+    }
+
     private fun documentToPost(document: Document): Post {
         return Post(
+            postId = document.getString("postId"),
             userId = document.getString("userId"),
             message = document.getString("message"),
             date = document.getDate("date")
         )
+    }
+
+    fun findPostById(postId: String) : Post? {
+        val filter = Document("postId", postId)
+        val result = collection.find(filter).firstOrNull()
+
+        if(result == null){
+            return null
+        }
+
+        val primitives = result.toMap().mapKeys { it.key as String } as Map<String, String>
+
+        return Post.fromPrimitives(primitives)
     }
 }
