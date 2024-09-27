@@ -12,6 +12,17 @@ interface PostRepositoryInterface {
 class PostRepository (private val database: MongoDatabase) : PostRepositoryInterface {
     private var collection: MongoCollection<Document> = database.getCollection("posts") as MongoCollection<Document>
 
+    fun savePost(post: Post): Boolean {
+        val postDocument = Document(post.toPrimitives())
+        return try {
+            collection.insertOne(postDocument)
+            true
+        } catch (e: Exception) {
+            println("Error al guardar el post: ${e.message}")
+            false
+        }
+    }
+
     override suspend fun getPostsByUserId(
         userId: String,
         order: String,
