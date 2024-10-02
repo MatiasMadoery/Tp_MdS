@@ -8,7 +8,7 @@ import io.ktor.server.routing.*
 import utn.methodology.infrastructure.persistence.connectToMongoDB
 import utn.methodology.infrastructure.persistence.repositories.PostRepository
 
-fun Application.postRoutes() {
+fun Application.searchPostRoutes() {
     val mongoDatabase = connectToMongoDB()
     val postRepository = PostRepository(mongoDatabase)
 

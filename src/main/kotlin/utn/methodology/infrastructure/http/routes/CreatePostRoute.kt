@@ -9,7 +9,7 @@ import utn.methodology.infrastructure.persistence.connectToMongoDB
 import utn.methodology.infrastructure.persistence.repositories.UserRepository
 
 
-fun Application.postRoutes() {
+fun Application.createPostRoutes() {
     val mongoDatabase = connectToMongoDB()
     val postRepository = PostRepository(mongoDatabase)
     val postAction = PostAction(PostHandler(postRepository))
