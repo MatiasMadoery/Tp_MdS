@@ -1,64 +1,49 @@
 package utn.methodology.infrastructure.http.routes
 
-import utn.methodology.application.commands.CreateUserCommand
-import utn.methodology.application.commandhandlers.CreateUserHandler
-import utn.methodology.infrastructure.http.actions.CreateUserAction
 import utn.methodology.infrastructure.persistence.connectToMongoDB
 import utn.methodology.infrastructure.persistence.repositories.PostRepository
+import utn.methodology.infrastructure.http.actions.DeletePostAction
+import utn.methodology.application.commandhandlers.DeletePostCommandHandler
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import utn.methodology.application.queries.FindUserByUsernameQuery
-import utn.methodology.application.queryhandlers.FindUserByUsernameHandler
-import utn.methodology.infrastructure.http.actions.FindUserByUsernameAction
 
-fun Application.userRoutes() {
+fun Application.deletePostRoutes() {
     val mongoDatabase = connectToMongoDB()
     val postRepository = PostRepository(mongoDatabase)
-    val createUserAction = CreateUserAction(CreateUserHandler(userRepository))
-    val findUserByUsernameAction = FindUserByUsernameAction(FindUserByUsernameHandler(userRepository))
+    val deletePostCommandHandler = DeletePostCommandHandler(postRepository)
+    val deletePostAction = DeletePostAction(deletePostCommandHandler)
 
-routing {
-    delete("/posts/{id}") {
-        val user = call.principal<UserIdPrincipal>() // Obtener el usuario autenticado
 
-        if (user != null) {
-            val postId = call.parameters["id"]?.toIntOrNull()
+    routing {
+        delete("/posts/{id}") {
+            val userId = call.request.headers["User-Id"]
 
-            if (postId != null) {
-                val post = postRepository.getPostById(postId) // Buscar el post en el repositorio
-
-                if (post != null && post.userId == user.name) {
-                    // El post le pertenece al usuario
-                    val wasDeleted = postRepository.deletePostById(postId)
-
-                    if (wasDeleted) {
-                        call.respondText("Post deleted successfully", status = HttpStatusCode.OK)
-                    } else {
-                        call.respondText("Error deleting post", status = HttpStatusCode.InternalServerError)
-                    }
-                } else {
-                    call.respondText("Post not found or not authorized", status = HttpStatusCode.Forbidden)
-                }
-            } else {
-                call.respondText("Invalid Post ID", status = HttpStatusCode.BadRequest)
+            if (userId.isNullOrBlank()) {
+                call.respond(HttpStatusCode.Unauthorized, "Missing or invalid user ID")
+                return@delete
             }
-        } else {
-            call.respondText("User not authenticated", status = HttpStatusCode.Unauthorized)
+
+            val postId = call.parameters["id"]
+            if (postId.isNullOrBlank()) {
+                return@delete call.respond(HttpStatusCode.BadRequest, "Invalid post ID")
+            }
+
+            val post = postRepository.findPostById(postId)
+            if (post == null) {
+                return@delete call.respond(HttpStatusCode.NotFound, "Post not found")
+            }
+
+            if (post.getUserId() != userId) {
+                return@delete call.respond(HttpStatusCode.Forbidden, "You do not have permission to delete this post")
+            }
+
+            val result = deletePostAction.execute(postId, userId)
+            result.fold(
+                onSuccess = { message -> call.respond(HttpStatusCode.OK, message) },
+                onFailure = { error -> call.respond(HttpStatusCode.BadRequest, error.message ?: "Error deleting post") }
+            )
         }
     }
-
-    }
-
 }
-//fun deletePostById(id: Int): Boolean {
-//    val post = getPostById(id)
-//    return if (post != null) {
-//        posts.remove(post)
-//        true
-//    } else {
-//        false
-//    }
-//}
