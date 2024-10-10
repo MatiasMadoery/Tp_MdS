@@ -38,4 +38,6 @@ class PostRepository (private val database: MongoDatabase) : PostRepositoryInter
             date = document.getDate("date")
         )
     }
+    fun getIdsTracked (usuarioId: String): List<String>
+    fun getPostsByUsers(ids : List<String>) : List<Post>
 }
