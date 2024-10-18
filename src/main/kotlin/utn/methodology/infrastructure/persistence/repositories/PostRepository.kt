@@ -50,6 +50,16 @@ class PostRepository(private val database: MongoDatabase) : PostRepositoryInterf
         return documentToPost(document)
     }
 
+    fun findPostsByUserIds(userIds: List<String>): List<Post> {
+
+        val filter = Document("userId", Document("\$in", userIds))
+
+        val documents = collection.find(filter)
+
+        return documents.map { documentToPost(it) }.toList()
+    }
+
+
     override suspend fun deletePostById(postId: String): Boolean {
         val query = Document("postId", postId)
         val deleteResult = collection.deleteOne(query)
@@ -64,6 +74,4 @@ class PostRepository(private val database: MongoDatabase) : PostRepositoryInterf
             date = document.getDate("date")
         )
     }
-    fun getIdsTracked (usuarioId: String): List<String>
-    fun getPostsByUsers(ids : List<String>) : List<Post>
 }

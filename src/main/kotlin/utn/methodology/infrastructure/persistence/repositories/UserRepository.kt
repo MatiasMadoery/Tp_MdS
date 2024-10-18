@@ -20,6 +20,16 @@ class UserRepository(private val database: MongoDatabase) {
         return User.fromPrimitives(primitives as Map<String, String>)
     }
 
+    fun findFollowedIdsByUserId(userId: String): List<String> {
+
+        val filter = Document("id", userId)
+
+        val followedUsers = collection.find(filter)
+
+        return followedUsers.map { it.getString("following") }.toList()
+    }
+
+
     fun update(user: User): Boolean{
         val filter = Document("id", user.getId())
         val update = Document("\$set", user.toPrimitives())
