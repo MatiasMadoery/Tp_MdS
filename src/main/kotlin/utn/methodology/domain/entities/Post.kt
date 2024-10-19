@@ -1,12 +1,13 @@
 package utn.methodology.domain.entities
 
+import kotlinx.serialization.Contextual
 import java.util.Date
 
 data class Post (
     private var postId: String,
     private var userId: String,
     private var message: String,
-    private var date: Date
+    @Contextual private var date: Date
 )
 
 {

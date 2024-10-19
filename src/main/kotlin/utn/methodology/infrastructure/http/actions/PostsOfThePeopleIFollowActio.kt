@@ -4,9 +4,6 @@ import org.bson.Document
 import utn.methodology.application.queries.PostsOfThePeopleIFollowQuery
 import utn.methodology.application.queryhandlers.PostsOfThePeopleIFollowQueryHandler
 import utn.methodology.domain.entities.Post
-import utn.methodology.domain.entities.User
-import utn.methodology.infrastructure.persistence.repositories.PostRepository
-import utn.methodology.infrastructure.persistence.repositories.UserRepository
 
 class PostsOfThePeopleIFollowAction (private val queryHandler: PostsOfThePeopleIFollowQueryHandler){
     fun ejecutar(followedId: String): List<Post> {

@@ -5,20 +5,22 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import utn.methodology.application.commandhandlers.CreatePostHandler
+import utn.methodology.application.commands.CreatePostCommand
+import utn.methodology.infrastructure.http.actions.CreatePostAction
 import utn.methodology.infrastructure.persistence.connectToMongoDB
-import utn.methodology.infrastructure.persistence.repositories.UserRepository
-
+import utn.methodology.infrastructure.persistence.repositories.PostRepository
 
 fun Application.createPostRoutes() {
     val mongoDatabase = connectToMongoDB()
     val postRepository = PostRepository(mongoDatabase)
-    val postAction = PostAction(PostHandler(postRepository))
+    val postAction = CreatePostAction(CreatePostHandler(postRepository))
 
     routing {
         post("/posts") {
-            val body = call.receive<PostCommand>()
+            val body = call.receive<CreatePostCommand>()
             try {
-                if (body.message.Length > 100) {
+                if (body.message.length > 100) {
                     postAction.execute(body)
                     call.respond(HttpStatusCode.Created, mapOf("message" to "Entry too long!"))
                 }

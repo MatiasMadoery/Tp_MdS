@@ -20,7 +20,7 @@ class PostRepository(private val database: MongoDatabase) : PostRepositoryInterf
             collection.insertOne(postDocument)
             true
         } catch (e: Exception) {
-            println("Error al guardar el post: ${e.message}")
+            println("Error post: ${e.message}")
             false
         }
     }
