@@ -5,7 +5,9 @@ data class User (
     private var name : String,
     private var username : String,
     private var email : String,
-    private var password : String
+    private var password : String,
+    private val followers: MutableList<String> = mutableListOf(),
+    private val following : MutableList<String> = mutableListOf()
 )
 
 {
@@ -41,6 +43,14 @@ data class User (
             "email" to  this.email,
             "password" to this.password
         )
+    }
+
+    fun follow(following: User) {
+        this.followers.add(following.id)
+    }
+
+    fun addFollower(followers: User){
+        this.following.add(followers.id)
     }
 }
 
