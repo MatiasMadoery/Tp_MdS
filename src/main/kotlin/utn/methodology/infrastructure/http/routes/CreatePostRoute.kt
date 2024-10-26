@@ -2,6 +2,7 @@ package utn.methodology.infrastructure.http.routes
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -10,23 +11,30 @@ import utn.methodology.application.commands.CreatePostCommand
 import utn.methodology.infrastructure.http.actions.CreatePostAction
 import utn.methodology.infrastructure.persistence.connectToMongoDB
 import utn.methodology.infrastructure.persistence.repositories.PostRepository
+import utn.methodology.infrastructure.persistence.repositories.UserRepository
 
-fun Application.createPostRoutes() {
+fun Application.createPostRoute() {
     val mongoDatabase = connectToMongoDB()
     val postRepository = PostRepository(mongoDatabase)
-    val postAction = CreatePostAction(CreatePostHandler(postRepository))
+    val userRepository = UserRepository(mongoDatabase)
+    val postAction = CreatePostAction(CreatePostHandler(postRepository, userRepository))
 
     routing {
         post("/posts") {
-            val body = call.receive<CreatePostCommand>()
             try {
-                if (body.message.length > 100) {
+                // Recibe el cuerpo de la solicitud
+                val body = call.receive<CreatePostCommand>()
+                // Verifica la longitud del mensaje
+                if (body.message.length > 2) {
+                    call.respond(HttpStatusCode.BadRequest, mapOf("message" to "Message length exceeds 100 characters"))
+                } else {
                     postAction.execute(body)
-                    call.respond(HttpStatusCode.Created, mapOf("message" to "Entry too long!"))
+                    call.respond(HttpStatusCode.Created, mapOf("message" to "Entry ok!"))
                 }
             } catch (e: Exception) {
-                call.respond(HttpStatusCode.BadRequest, mapOf("message" to e.message))
+                println("me rompi $e")
             }
         }
     }
 }
+

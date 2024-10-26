@@ -4,6 +4,9 @@ import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
 import org.bson.Document
 import utn.methodology.domain.entities.Post
+import utn.methodology.domain.entities.User
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 interface PostRepositoryInterface {
     suspend fun getPostsByUserId(userId: String, order: String, limit: Int, offset: Int): List<Post>
@@ -14,15 +17,9 @@ interface PostRepositoryInterface {
 class PostRepository(private val database: MongoDatabase) : PostRepositoryInterface {
     private var collection: MongoCollection<Document> = database.getCollection("posts") as MongoCollection<Document>
 
-    fun savePost(post: Post): Boolean {
+    fun savePost(post: Post) {
         val postDocument = Document(post.toPrimitives())
-        return try {
             collection.insertOne(postDocument)
-            true
-        } catch (e: Exception) {
-            println("Error post: ${e.message}")
-            false
-        }
     }
 
     override suspend fun getPostsByUserId(
@@ -67,11 +64,14 @@ class PostRepository(private val database: MongoDatabase) : PostRepositoryInterf
     }
 
     private fun documentToPost(document: Document): Post {
+        val date = document.getDate("date")?.let { date ->
+            date.toInstant().atZone(ZoneOffset.UTC).toLocalDateTime()
+        } ?: LocalDateTime.now()
         return Post(
             postId = document.getString("postId"),
             userId = document.getString("userId"),
             message = document.getString("message"),
-            date = document.getDate("date")
+            date = date
         )
     }
 }

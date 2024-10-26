@@ -18,8 +18,7 @@ fun Application.deletePostRoutes() {
 
     routing {
         delete("/posts/{id}") {
-            val userId = call.request.headers["User-Id"]
-
+            val userId = call.parameters["id"]
             if (userId.isNullOrBlank()) {
                 call.respond(HttpStatusCode.Unauthorized, "Missing or invalid user ID")
                 return@delete

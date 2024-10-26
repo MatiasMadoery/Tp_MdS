@@ -1,24 +1,26 @@
 package utn.methodology.domain.entities
-
-import kotlinx.serialization.Contextual
-import java.util.Date
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 data class Post (
-    private var postId: String,
-    private var userId: String,
-    private var message: String,
-    @Contextual private var date: Date
+    private val postId: String,
+    private val userId: String,
+    private val message: String,
+    private val date: LocalDateTime
 )
 
 {
     companion object{
-        fun fromPrimitives(primitives: Map<String, String>):Post{
+
+
+
+        fun fromPrimitives(primitives: Map<String, Any>):Post{
             val post = Post(
                 primitives["postId"] as String,
                 primitives["userId"] as String,
                 primitives["message"] as String,
-                primitives["date"] as Date
-            )
+                LocalDateTime.ofEpochSecond(primitives["date"] as Long, 0, ZoneOffset.UTC)
+            );
             return post
         }
     }
@@ -28,7 +30,7 @@ data class Post (
             "postId" to postId,
             "userId" to userId,
             "message" to message,
-            "date" to date
+            "date" to this.date.toEpochSecond(ZoneOffset.UTC)
         )
     }
     fun getUserId(): String = userId
