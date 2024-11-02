@@ -4,74 +4,53 @@ import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
 import org.bson.Document
 import utn.methodology.domain.entities.Post
-import utn.methodology.domain.entities.User
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 
-interface PostRepositoryInterface {
-    suspend fun getPostsByUserId(userId: String, order: String, limit: Int, offset: Int): List<Post>
-    suspend fun findPostById(postId: String): Post?
-    suspend fun deletePostById(postId: String): Boolean
-}
+class PostRepository(private val database: MongoDatabase) {
 
-class PostRepository(private val database: MongoDatabase) : PostRepositoryInterface {
-    private var collection: MongoCollection<Document> = database.getCollection("posts") as MongoCollection<Document>
+    private var collection: MongoCollection<Document> = database.getCollection("posts")
 
-    fun savePost(post: Post) {
-        val postDocument = Document(post.toPrimitives())
-            collection.insertOne(postDocument)
+    fun save(post: Post) {
+        val newPost = Document(post.toPrimitives())
+
+        println(newPost)
+        collection.insertOne(newPost)
+
+        println("post persisted")
     }
 
-    override suspend fun getPostsByUserId(
-        userId: String,
-        order: String,
-        limit: Int,
-        offset: Int
-    ): List<Post> {
-        val sortOrder = if (order == "ASC") 1 else -1
-
-        val query = Document("userId", userId)
-        val sort = Document("date", sortOrder)
-
-        return collection.find(query)
-            .sort(sort)
-            .skip(offset)
-            .limit(limit)
-            .map { documentToPost(it) }
-            .toList()
+    fun delete(postId: String) {
+        val filter = Document("id", postId)
+        collection.deleteOne(filter)
     }
 
-    override suspend fun findPostById(postId: String): Post? {
-        val query = Document("postId", postId)
-        val document = collection.find(query).firstOrNull() ?: return null
-        return documentToPost(document)
+    fun findAllByUserId(idUser: String, order: String? = null, limit: Int? = null, offset: Int? = null): List<Post> {
+        val filter = Document("idUser", idUser)
+        val sort = if (order == "ASC") {
+            Document("date", 1)
+        } else if (order == "DESC") {
+            Document("date", -1)
+        } else {
+            Document()
+        }
+
+        println(filter)
+        val documents = collection.find(filter).toList()
+
+        println(documents)
+
+        if (limit != null) {
+            //documents.limit(limit)
+        }
+        if (offset != null) {
+            //documents.skip(offset)
+        }
+
+        println(documents)
+
+        return documents.toList().map { document ->
+            Post.fromPrimitives(document as Map<String, Any>)
+        }
     }
 
-    fun findPostsByUserIds(userIds: List<String>): List<Post> {
-
-        val filter = Document("userId", Document("\$in", userIds))
-
-        val documents = collection.find(filter)
-
-        return documents.map { documentToPost(it) }.toList()
-    }
-
-
-    override suspend fun deletePostById(postId: String): Boolean {
-        val query = Document("postId", postId)
-        val deleteResult = collection.deleteOne(query)
-        return deleteResult.deletedCount > 0
-    }
-
-    private fun documentToPost(document: Document): Post {
-        val date = document.getDate("date")?.let { date ->
-            date.toInstant().atZone(ZoneOffset.UTC).toLocalDateTime()
-        } ?: LocalDateTime.now()
-        return Post(
-            postId = document.getString("postId"),
-            userId = document.getString("userId"),
-            message = document.getString("message"),
-            date = date
-        )
-    }
 }

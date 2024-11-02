@@ -1,37 +1,33 @@
 package utn.methodology.domain.entities
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 
-data class Post (
-    private val postId: String,
-    private val userId: String,
-    private val message: String,
-    private val date: LocalDateTime
-)
-
-{
-    companion object{
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 
-
-        fun fromPrimitives(primitives: Map<String, Any>):Post{
-            val post = Post(
-                primitives["postId"] as String,
-                primitives["userId"] as String,
-                primitives["message"] as String,
-                LocalDateTime.ofEpochSecond(primitives["date"] as Long, 0, ZoneOffset.UTC)
-            );
-            return post
-        }
-    }
-
-    fun toPrimitives(): Map<String, Any>{
+data class Post(
+    val id: String = UUID.randomUUID().toString(),
+    val idUser: String,
+    var message: String,
+    val date: String
+) {
+    fun toPrimitives(): Map<String, String> {
         return mapOf(
-            "postId" to postId,
-            "userId" to userId,
+            "id" to id,
+            "idUser" to idUser,
             "message" to message,
-            "date" to this.date.toEpochSecond(ZoneOffset.UTC)
+            "date" to date.toString()
         )
     }
-    fun getUserId(): String = userId
+
+    companion object {
+        private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        fun fromPrimitives(primitives: Map<String, Any>): Post {
+            return Post(
+                id = primitives["id"] as String,
+                idUser = primitives["idUser"] as String,
+                message = primitives["message"] as String,
+                date = primitives["date"] as String
+            )
+        }
+    }
 }

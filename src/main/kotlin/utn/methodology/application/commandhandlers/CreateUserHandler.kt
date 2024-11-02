@@ -6,8 +6,8 @@ import utn.methodology.infrastructure.persistence.repositories.UserRepository //
 import java.util.UUID
 
 class CreateUserHandler (
-            private val userRepository: UserRepository,
-    )
+    private val userRepository: UserRepository,
+)
 {
     fun handle(command: CreateUserCommand)
     {
@@ -22,4 +22,6 @@ class CreateUserHandler (
         userRepository.save(user)
     }
 }
+
+
 
