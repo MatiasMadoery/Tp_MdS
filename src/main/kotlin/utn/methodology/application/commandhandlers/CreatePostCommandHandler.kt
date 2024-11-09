@@ -5,10 +5,9 @@ import utn.methodology.domain.entities.Post
 import utn.methodology.infrastructure.persistence.repositories.PostRepository
 import java.time.LocalDateTime
 
-class CreatePostCommandHandler (private val postRepository: PostRepository) {
+class CreatePostCommandHandler(private val postRepository: PostRepository) {
     fun handle(command: CreatePostCommand) {
-
-        println(command)
+        command.validate()
 
         val post = Post(
             idUser = command.idUser,
