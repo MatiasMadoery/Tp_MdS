@@ -53,4 +53,22 @@ class PostRepository(private val database: MongoDatabase) {
         }
     }
 
+    fun findPostsByFollowedUserIds(followedUserIds: List<String>, order: String? = null, limit: Int? = null, offset: Int? = null): List<Post> {
+        val filter = Document("idUser", Document("\$in", followedUserIds))
+        val sort = when (order) {
+            "ASC" -> Document("date", 1)
+            "DESC" -> Document("date", -1)
+            else -> Document()
+        }
+
+        var query = collection.find(filter).sort(sort)
+        if (limit != null) query = query.limit(limit)
+        if (offset != null) query = query.skip(offset)
+
+        return query.map { document ->
+            Post.fromPrimitives(document as Map<String, Any>)
+        }.toList()
+    }
+
+
 }

@@ -8,19 +8,23 @@ import io.ktor.server.routing.*
 import utn.methodology.application.commandhandlers.CreatePostCommandHandler
 import utn.methodology.application.commandhandlers.DeletePostCommandHandler
 import utn.methodology.application.commandhandlers.FindAllPostsByUserIdHandler
-import utn.methodology.application.commands.FindAllPostsByUserIdCommand
+import utn.methodology.application.commandhandlers.FindPostsByFollowedUserIdsCommandHandler
 import utn.methodology.infrastructure.http.actions.CreatePostAction
 import utn.methodology.infrastructure.http.actions.DeletePostAction
 import utn.methodology.infrastructure.http.actions.FindAllPostsByUserIdAction
+import utn.methodology.infrastructure.http.actions.FindPostsByFollowedUserIdsAction
 import utn.methodology.infrastructure.persistence.connectToMongoDB
 import utn.methodology.infrastructure.persistence.repositories.PostRepository
+import utn.methodology.infrastructure.persistence.repositories.UserRepository
 
 fun Application.postRoutes() {
     val mongoDatabase = connectToMongoDB()
+    val userRepository = UserRepository(mongoDatabase)
     val postRepository = PostRepository(mongoDatabase)
     val savePostAction = CreatePostAction(CreatePostCommandHandler(postRepository))
     val deletePostAction = DeletePostAction(DeletePostCommandHandler(postRepository))
     val findAllPostsByUserIdAction = FindAllPostsByUserIdAction(FindAllPostsByUserIdHandler(postRepository))
+    val findPostsByFollowedUserIdsCommand = FindPostsByFollowedUserIdsAction(FindPostsByFollowedUserIdsCommandHandler(userRepository, postRepository))
 
     routing {
         post("/posts") {
@@ -62,5 +66,20 @@ fun Application.postRoutes() {
         }
 
         //posts/user/user123?order=DESC&limit=10&offset=0 Linea para probar en Postman :)
+
+        get("/posts/followed/{userId}") {
+            val userId = call.parameters["userId"] ?: return@get call.respond(HttpStatusCode.BadRequest, mapOf("message" to "User ID is required"))
+            val order = call.request.queryParameters["order"]
+            val limit = call.request.queryParameters["limit"]?.toIntOrNull()
+            val offset = call.request.queryParameters["offset"]?.toIntOrNull()
+
+            try {
+                val posts = findPostsByFollowedUserIdsCommand.execute(userId, order, limit, offset)
+                call.respond(HttpStatusCode.OK, posts)
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("message" to e.message))
+            }
+        }
+
     }
 }

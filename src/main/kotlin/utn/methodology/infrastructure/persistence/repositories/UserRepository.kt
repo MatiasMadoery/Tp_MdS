@@ -42,4 +42,24 @@ class UserRepository(private val database: MongoDatabase) {
         val filter = Document("id", user.getId());
         collection.deleteOne(filter)
     }
+
+    fun followUser(followerId: String, userIdToFollow: String) {
+        val filter = Document("id", followerId)
+        val update = Document("\$addToSet", Document("following", userIdToFollow))
+        collection.updateOne(filter, update)
+
+        val followerFilter = Document("id", userIdToFollow)
+        val followerUpdate = Document("\$addToSet", Document("followers", followerId))
+        collection.updateOne(followerFilter, followerUpdate)
+    }
+
+    fun unfollowUser(followerId: String, userIdToUnfollow: String) {
+        val filter = Document("id", followerId)
+        val update = Document("\$pull", Document("following", userIdToUnfollow))
+        collection.updateOne(filter, update)
+
+        val followerFilter = Document("id", userIdToUnfollow)
+        val followerUpdate = Document("\$pull", Document("followers", followerId))
+        collection.updateOne(followerFilter, followerUpdate)
+    }
 }

@@ -1,7 +1,5 @@
 package utn.methodology.infrastructure.http.actions
 
-
-import io.ktor.http.*
 import utn.methodology.application.commandhandlers.UpdateUserHandler
 import utn.methodology.application.commands.UpdateUserCommand
 

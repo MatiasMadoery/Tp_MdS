@@ -9,3 +9,4 @@ data class FindUserByUsernameQuery(val username: String)
     }
 
 }
+

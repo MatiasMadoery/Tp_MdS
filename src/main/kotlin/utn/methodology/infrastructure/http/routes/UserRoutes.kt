@@ -1,7 +1,6 @@
 package utn.methodology.infrastructure.http.routes
 
 import utn.methodology.application.commands.CreateUserCommand
-import utn.methodology.application.commandhandlers.CreateUserHandler
 import utn.methodology.infrastructure.persistence.connectToMongoDB
 import utn.methodology.infrastructure.persistence.repositories.UserRepository
 import io.ktor.http.*
@@ -9,8 +8,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import utn.methodology.application.commandhandlers.DeleteUserHandler
-import utn.methodology.application.commandhandlers.UpdateUserHandler
+import utn.methodology.application.commandhandlers.*
 import utn.methodology.application.commands.UpdateUserCommand
 import utn.methodology.application.queries.FindUserByEmailQuery
 import utn.methodology.application.queries.FindUserByUsernameQuery
@@ -26,6 +24,8 @@ fun Application.userRoutes() {
     val findUserByEmailAction = FindUserByEmailAction(FindUserByEmailHandler(userRepository))
     val deleteUserAction = DeleteUserAction(DeleteUserHandler(userRepository))
     val updateUserAction = UpdateUserAction(UpdateUserHandler(userRepository))
+    val followUserAction = FollowUserAction(FollowUserCommandHandler(userRepository))
+    val unfollowUserAction = UnfollowUserAction(UnfollowUserCommandHandler(userRepository))
 
     routing {
         post("/users") {
@@ -81,6 +81,34 @@ fun Application.userRoutes() {
             catch(e:Exception)
             {
                 call.respond(HttpStatusCode.BadRequest, mapOf("message" to e.message))
+            }
+        }
+
+        post("/users/{userId}/follow/{targetUserId}") {
+            val userId = call.parameters["userId"] ?: return@post call.respond(HttpStatusCode.BadRequest, "User ID is required")
+            val targetUserId = call.parameters["targetUserId"] ?: return@post call.respond(HttpStatusCode.BadRequest, "Target User ID is required")
+
+            try {
+                followUserAction.execute(userId, targetUserId)
+                call.respond(HttpStatusCode.OK, "User followed successfully")
+            } catch (e: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("message" to e.message))
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError, mapOf("message" to "An error occurred"))
+            }
+        }
+
+        post("/users/{userId}/unfollow/{targetUserId}") {
+            val userId = call.parameters["userId"] ?: return@post call.respond(HttpStatusCode.BadRequest, "Missing userId")
+            val targetUserId = call.parameters["targetUserId"] ?: return@post call.respond(HttpStatusCode.BadRequest, "Missing targetUserId")
+
+            try {
+                unfollowUserAction.execute(userId, targetUserId)
+                call.respond(HttpStatusCode.OK, mapOf("message" to "User unfollowed successfully"))
+            } catch (e: IllegalArgumentException) {
+                call.respond(HttpStatusCode.BadRequest, mapOf("message" to e.message))
+            } catch (e: Exception) {
+                call.respond(HttpStatusCode.InternalServerError, mapOf("message" to "An error occurred"))
             }
         }
 
