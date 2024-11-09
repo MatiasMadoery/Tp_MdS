@@ -5,10 +5,11 @@ data class User (
     private var name : String,
     private var username : String,
     private var email : String,
-    private var password : String
-)
+    private var password : String,
+    private val following: MutableList<String> = mutableListOf(),
+    private val followers: MutableList<String> = mutableListOf()
+){
 
-{
     companion object {
         fun fromPrimitives(primitives: Map<String, String>): User{
             val user = User(
@@ -16,8 +17,11 @@ data class User (
                 primitives["name"] as String,
                 primitives["username"] as String,
                 primitives["email"] as String,
-                primitives["password"] as String
+                primitives["password"] as String,
+                (primitives["following"] as? List<String>)?.toMutableList() ?: mutableListOf(),
+                (primitives["followers"] as? List<String>)?.toMutableList() ?: mutableListOf()
             );
+
             return user;
         }
     }
@@ -42,8 +46,15 @@ data class User (
             "password" to this.password
         )
     }
-}
 
+    fun getFollowing(): List<String> {
+        return this.following
+    }
+
+    fun getFollowers(): List<String> {
+        return this.followers
+    }
+}
 
 
 
