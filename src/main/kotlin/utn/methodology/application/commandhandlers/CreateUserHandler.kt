@@ -11,6 +11,8 @@ class CreateUserHandler (
 {
     fun handle(command: CreateUserCommand)
     {
+        command.validate()
+
         val user = User(
             UUID.randomUUID().toString(),
             command.name,
